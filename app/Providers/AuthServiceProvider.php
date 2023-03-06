@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use App\Models\User;
+use App\Models\Transaksi;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -25,6 +27,23 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        Gate::define('admin', function (User $user){
+            return $user->role === 'admin';
+        });
+        Gate::define('manajer', function (User $user){
+            return $user->role ==='manajer';
+        });
+        Gate::define('kasir', function (User $user){
+            return $user->role === 'kasir';
+        });
+        Gate::define('role', function (User $user, ...$role){
+            return in_array($user->role, $role);
+        });
+        Gate::define('transaksi-show', function (User $user, Transaksi $transaksi) {
+            if ($user->role == 'manajer') {
+            } else {
+                return $user->id == $transaksi->user_id;
+            }
+        });
     }
 }
